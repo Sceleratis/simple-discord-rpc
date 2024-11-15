@@ -196,12 +196,12 @@ function updatePresence() {
     console.log("RPC Settings: ", args);
     console.log(INFO(`Successfully updated ${client.user.username}#${client.user.discriminator}'s Rich Presence!`));
 
-    client.setActivity(args);
+    //client.setActivity(args);
 
-    //return client.request('SET_ACTIVITY', {
-    //    pid: process.pid,
-    //    activity: args
-    //});
+    return client.request('SET_ACTIVITY', {
+        pid: process.pid,
+        activity: args
+    });
 }
 
 /* Login using the user's Discord Developer Application ID */
