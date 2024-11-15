@@ -165,34 +165,43 @@ function validateConfig() {
 function updatePresence() {
     let buttons = [];
     let buttonObj = Object.values(rpc.buttons);
+
     buttonObj.forEach((button) => {
         if (button.label && button.url !== null) {
             buttons.push(button);
         }
     });
+
     if (!buttons.length) {
         buttons = false;
     }
+
+    let args = {
+        details: rpc.details ? rpc.details : undefined,
+        state: rpc.state ? rpc.state : undefined,
+        assets: {
+            large_text: rpc.assets.largeImageText ? rpc.assets.largeImageText : undefined,
+            large_image: rpc.assets.largeImageKey ? rpc.assets.largeImageKey : undefined,
+            small_text: rpc.assets.smallImageText ? rpc.assets.smallImageText : undefined,
+            small_image: rpc.assets.smallImageKey ? rpc.assets.smallImageKey : undefined
+        },
+        buttons: buttons ? buttons : undefined,
+        timestamps: {
+            start: rpc.timestamps.useTimer ? Number(rpc.timestamps.startTimestamp) || Number(startTimestamp) : undefined,
+            end: rpc.timestamps.useTimer && rpc.timestamps.endTimestamp !== null ? Number(rpc.timestamps.endTimestamp) : undefined
+        },
+        instance: true
+    }
+
+    console.log("RPC Settings: ", args);
     console.log(INFO(`Successfully updated ${client.user.username}#${client.user.discriminator}'s Rich Presence!`));
-    return client.request('SET_ACTIVITY', {
-        pid: process.pid,
-        activity: {
-            details: rpc.details ? rpc.details : undefined,
-            state: rpc.state ? rpc.state : undefined,
-            assets: {
-                large_text: rpc.assets.largeImageText ? rpc.assets.largeImageText : undefined,
-                large_image: rpc.assets.largeImageKey ? rpc.assets.largeImageKey : undefined,
-                small_text: rpc.assets.smallImageText ? rpc.assets.smallImageText : undefined,
-                small_image: rpc.assets.smallImageKey ? rpc.assets.smallImageKey : undefined
-            },
-            buttons: buttons ? buttons : undefined,
-            timestamps: {
-                start: rpc.timestamps.useTimer ? Number(rpc.timestamps.startTimestamp) || Number(startTimestamp) : undefined,
-                end: rpc.timestamps.useTimer && rpc.timestamps.endTimestamp !== null ? Number(rpc.timestamps.endTimestamp) : undefined
-            },
-            instance: true
-        }
-    });
+
+    client.setActivity(args);
+
+    //return client.request('SET_ACTIVITY', {
+    //    pid: process.pid,
+    //    activity: args
+    //});
 }
 
 /* Login using the user's Discord Developer Application ID */
@@ -204,10 +213,11 @@ function connectToDiscord() {
     }
     client = new Client({
         transport: 'ipc'
+        //clientId: config.clientId
     });
     /* Once the client is ready, call onStartup() to execute initialTasks */
     client.on('ready', async () => {
-        console.log(SUCCESS(`Successfully authorised as ${client.user.username}#${client.user.discriminator}`));
+        console.log(SUCCESS(`Successfully authorized as ${client.user.username}#${client.user.discriminator}`));
         onStartup();
     });
     /* Handle when Discord unexpectedly closes, attempt to reconnect if this happens */
