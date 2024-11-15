@@ -193,7 +193,7 @@ function updatePresence() {
         instance: true
     }
 
-    console.log("RPC Settings: ", args);
+    console.log(INFO("Settings: "), args);
     console.log(INFO(`Successfully updated ${client.user.username}#${client.user.discriminator}'s Rich Presence!`));
 
     //client.setActivity(args);
@@ -227,10 +227,16 @@ function connectToDiscord() {
         console.log(LOG(`Automatically retrying to connect, please wait ${retryDuration} seconds...`));
         connectToDiscord();
     });
-    /* If the client fails to connect, automatically retry in duration specified */
-    setTimeout(() => {
+    
+    try
+    {
         client.login({ clientId: config.clientId });
-    }, retryDuration * 1000)
+    } catch (err) {
+        /* If the client fails to connect, automatically retry in duration specified */
+        setTimeout(() => {
+            client.login({ clientId: config.clientId });
+        }, retryDuration * 1000)
+    }
 }
 
 /* Handle 'Could not connect' error, proceed to retry if attempt fails */
